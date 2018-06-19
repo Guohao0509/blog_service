@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.ghao.dao.TagDao" >
+
+	<resultMap id="TagResultMap" type="com.ghao.dto.Tag">
+        <id column="TAG_ID" property="tagId"/>
+        <result column="TAG_NAME" property="tagName"/>
+        <result column="STYLES" property="styles"/>
+    </resultMap>
+    
+  	<insert id="add">
+  		insert into tag (TAG_ID, TAG_NAME, STYLES) values (#{tagId}, #{tagName}, #{styles})
+  	</insert>
+  	
+  	<delete id="delete">
+  		delete from tag where TAG_ID = #{tagId}
+  	</delete>
+  	
+  	<update id="update">
+  		update tag set TAG_NAME = #{tagName}, STYLES = #{styles} where TAG_ID = #{tagId} 
+  	</update>
+  	
+  	<select id="getTagById" resultMap="TagResultMap">
+      	select * from tag where TAG_ID = #{tagId}
+  	</select>
+  	
+  	<select id="list" resultMap="TagResultMap">
+      	select * from tag
+  	</select>
+  
+  	<select id="total" resultType="java.lang.Integer">
+      	select count(TAG_ID) from tag
+  	</select>
+  	
+</mapper>

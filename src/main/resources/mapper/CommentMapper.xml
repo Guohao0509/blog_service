@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.ghao.dao.CommentDao" >
+
+	<resultMap id="CommentResultMap" type="com.ghao.dto.Comment">
+        <id column="COMMENT_ID" property="commentId"/>
+        <result column="ARTICLE_ID" property="articleId"/>
+        <result column="USER_ID" property="userId"/>
+        <result column="TO_USER_ID" property="toUserId"/>
+        <result column="COMMENT" property="comment"/>
+        <result column="STARS" property="stars"/>
+        <result column="TIP_OFFS" property="tipOffs"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="TITLE" property="title"/>
+        <result column="NICKNAME" property="nickname"/>
+        <result column="PROFILE" property="profile"/>
+        <result column="TO_NICKNAME" property="toNickname"/>
+        <result column="TO_PROFILE" property="toProfile"/>
+    </resultMap>
+    
+  	<insert id="add">
+  		insert into comment
+  		(COMMENT_ID, ARTICLE_ID, USER_ID, TO_USER_ID, COMMENT, CREATE_TIME)
+  		values
+  		(#{commentId}, #{articleId}, #{userId}, #{toUserId}, #{comment}, now())
+  	</insert>
+  	
+  	<select id="info" resultMap="CommentResultMap">
+      	select COMMENT_ID, STARS, TIP_OFFS from comment where COMMENT_ID = #{commentId}
+  	</select>
+  	
+  	<update id="infoAdd">
+  		update comment set
+    	STARS = #{stars},
+    	TIP_OFFS = #{tipOffs}
+    	where COMMENT_ID = #{commentId}
+  	</update>
+  	
+  	<delete id="delete">
+  		delete from comment where COMMENT_ID = #{commentId}
+  	</delete>
+  	
+  	<select id="getCommentById" resultMap="CommentResultMap">
+      	select * from comment where COMMENT_ID = #{commentId}
+  	</select>
+  	
+  	<select id="list" resultMap="CommentResultMap">
+  		select c.*, u.NICKNAME, u.PROFILE, tu.PROFILE as TO_PROFILE, tu.NICKNAME as TO_NICKNAME, a.TITLE from comment c
+      	left join user u
+      	on c.USER_ID = u.USER_ID
+      	left join article a
+      	on c.ARTICLE_ID = a.ARTICLE_ID
+		left join user tu
+		on c.TO_USER_ID = tu.USER_ID
+  	</select>
+  	
+  	<select id="getCommentsByArticle" resultMap="CommentResultMap">
+  		select c.*, u.NICKNAME, u.PROFILE, tu.PROFILE as TO_PROFILE, tu.NICKNAME as TO_NICKNAME, a.TITLE from comment c
+      	left join user u
+      	on c.USER_ID = u.USER_ID
+      	left join article a
+      	on c.ARTICLE_ID = a.ARTICLE_ID
+		left join user tu
+		on c.TO_USER_ID = tu.USER_ID
+      	where c.ARTICLE_ID = #{articleId}
+      	order by c.CREATE_TIME ASC
+  	</select>
+  	
+  	<select id="getCommentsByChat" resultMap="CommentResultMap">
+      	select c.*, u.NICKNAME, u.PROFILE, tu.PROFILE as TO_PROFILE, tu.NICKNAME as TO_NICKNAME, a.TITLE from comment c
+      	left join user u
+      	on c.USER_ID = u.USER_ID
+      	left join article a
+      	on c.ARTICLE_ID = a.ARTICLE_ID
+		left join user tu
+		on c.TO_USER_ID = tu.USER_ID
+		where 
+		(c.USER_ID = #{userId} and c.TO_USER_ID = #{toUserId}) or (c.USER_ID = #{toUserId} and c.TO_USER_ID = #{userId})
+		and c.ARTICLE_ID = #{articleId}
+		order by c.CREATE_TIME ASC
+  	</select>
+  	
+  	<select id="total" resultType="java.lang.Integer">
+  		select count(COMMENT_ID) from comment
+  	</select>
+  	
+  	<select id="count" resultType="java.lang.Integer">
+  		select count(COMMENT_ID) from comment
+  		<if test="articleId != null">
+    		where ARTICLE_ID = #{articleId}
+	  	</if>
+	  	<if test="userId != null">
+    		where USER_ID = #{userId}
+	  	</if>
+  	</select>
+</mapper>

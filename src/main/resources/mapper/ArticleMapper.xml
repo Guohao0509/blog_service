@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.ghao.dao.ArticleDao" >
+
+	<resultMap id="ArticleResultMap" type="com.ghao.dto.Article">
+        <id column="ARTICLE_ID" property="articleId"/>
+        <result column="TITLE" property="title"/>
+        <result column="AUTHOR" property="author"/>
+        <result column="INFO" property="info"/>
+        <result column="TEXT" property="text"/>
+        <result column="VISITS" property="visits"/>
+        <result column="STARS" property="stars"/>
+        <result column="KEEPS" property="keeps"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+   		<collection property="tags" ofType="com.ghao.dto.Tag">
+        	<id column="TAG_ID" property="tagId" />
+            <result column="TAG_NAME" property="tagName" />
+            <result column="STYLES" property="styles" />
+         </collection>
+    </resultMap>
+    
+    <insert id="add">
+    	insert into article
+    	(ARTICLE_ID, TITLE, AUTHOR, TEXT, CREATE_TIME, UPDATE_TIME, INFO)
+    	values
+    	(#{articleId}, #{title}, #{author}, #{text}, now(), now(), #{info})
+    </insert>
+    
+    <insert id="bindTag">
+    	insert into article_tag
+    	(ARTICLE_ID, TAG_ID)
+    	values
+    	<foreach item="item" index="index" collection="tags" separator=",">
+           	(#{articleId}, #{item.tagId})
+    	</foreach>
+    </insert>
+    
+    <delete id="delete">
+    	delete from article where ARTICLE_ID = #{articleId}
+    </delete>
+    
+    <delete id="unBindTag">
+    	delete from article_tag where ARTICLE_ID = #{articleId}
+    </delete>
+    
+    <update id="update">
+    	update article set
+    	TITLE = #{title},
+    	AUTHOR = #{author},
+    	INFO = #{info},
+    	TEXT = #{text},
+    	UPDATE_TIME = now()
+    	where ARTICLE_ID = #{articleId}
+    </update>
+    
+    <select id="getArticleById" resultMap="ArticleResultMap">
+      	select a.*, t.* from article a
+      	left join article_tag b
+      	on a.ARTICLE_ID = b.ARTICLE_ID
+      	left join tag t
+      	on b.TAG_ID = t.TAG_ID
+      	where a.ARTICLE_ID = #{articleId}
+  	</select>
+  	
+  	<select id="listByTag" resultMap="ArticleResultMap">
+		select * from 
+		(
+			select a.ARTICLE_ID from article_tag b
+			left join article a on a.ARTICLE_ID = b.ARTICLE_ID
+			where b.TAG_ID = #{tagId}
+		) o
+		left join article_tag b on o.ARTICLE_ID = b.ARTICLE_ID
+		left join tag t on b.TAG_ID = t.TAG_ID
+		left join article a on a.ARTICLE_ID = o.ARTICLE_ID
+		order by CREATE_TIME DESC
+  	</select>
+  	
+  	<select id="list" resultMap="ArticleResultMap">
+      	select a.*, t.* from article a
+      	left join article_tag b
+      	on a.ARTICLE_ID = b.ARTICLE_ID
+      	left join tag t
+      	on b.TAG_ID = t.TAG_ID
+      	order by a.CREATE_TIME DESC
+  	</select>
+  	
+  	<select id="listByKeyword" resultMap="ArticleResultMap">
+      	select a.*, t.* from article a
+      	left join article_tag b
+      	on a.ARTICLE_ID = b.ARTICLE_ID
+      	left join tag t
+      	on b.TAG_ID = t.TAG_ID
+      	where concat(a.TITLE, a.INFO, a.TEXT) like concat('%',#{keyword},'%')
+  	</select>
+	
+	<select id="total" resultType="java.lang.Integer">
+		select count(ARTICLE_ID) from article
+	</select>
+	
+	<select id="recommended" resultMap="ArticleResultMap">
+		select ARTICLE_ID, TITLE, CREATE_TIME, VISITS, STARS, KEEPS from article order by VISITS DESC limit 5
+	</select>
+	
+	<select id="index" resultMap="ArticleResultMap">
+      	select a.ARTICLE_ID, a.TITLE, a.AUTHOR, a.INFO, a.VISITS, a.CREATE_TIME, a.UPDATE_TIME, t.* from article a
+      	left join article_tag b
+      	on a.ARTICLE_ID = b.ARTICLE_ID
+      	left join tag t
+      	on b.TAG_ID = t.TAG_ID
+      	order by CREATE_TIME DESC
+  	</select>
+	
+	<select id="info" resultMap="ArticleResultMap">
+		select ARTICLE_ID, VISITS, STARS, KEEPS from article where ARTICLE_ID = #{articleId}
+	</select>
+    
+    <update id="infoAdd">
+    	update article set
+    	VISITS = #{visits},
+    	STARS = #{stars},
+    	KEEPS = #{keeps}
+    	where ARTICLE_ID = #{articleId}
+    </update>
+	
+</mapper>

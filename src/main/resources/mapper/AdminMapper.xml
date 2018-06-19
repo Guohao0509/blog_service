@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.ghao.dao.AdminDao" >
+
+	<resultMap id="AdminResultMap" type="com.ghao.dto.Admin">
+        <id column="ADMIN_ID" property="adminId"/>
+        <result column="PASSWORD" property="password"/>
+        <result column="ACCOUNT" property="account"/>
+        <result column="ADMIN_NAME" property="adminName"/>
+    </resultMap>
+    
+  	<insert id="add">
+  		insert into admin 
+  		(ADMIN_ID, PASSWORD, ACCOUNT, ADMIN_NAME)
+  		values
+  		(#{adminId}, #{password}, #{account}, #{adminName})
+  	</insert>
+  	
+  	<delete id="delete">
+  		delete from admin where ADMIN_ID = #{adminId}
+  	</delete>
+  	
+  	<update id="update">
+  		update admin set
+  		PASSWORD = #{password},
+  		ACCOUNT = #{account},
+  		ADMIN_NAME = #{adminName}
+  		where ADMIN_ID = #{adminId} 
+  	</update>
+  	
+  	<select id="getAdminById" resultMap="AdminResultMap">
+      	select * from admin where ADMIN_ID = #{adminId}
+  	</select>
+  	
+  	<select id="list" resultMap="AdminResultMap">
+      	select * from admin
+  	</select>
+	
+	<select id="total" resultType="java.lang.Integer">
+		select count(ADMIN_ID) from admin
+	</select>
+	
+	<select id="login" resultMap="AdminResultMap">
+      	select * from admin where ACCOUNT = #{account} and PASSWORD = #{password}
+  	</select>
+  	
+  	<select id="checkUserExist" resultType="java.lang.Integer">
+      	select count(*) from admin where ACCOUNT = #{account}
+  	</select>
+  	
+</mapper>

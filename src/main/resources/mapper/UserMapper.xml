@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.ghao.dao.UserDao" >
+
+	<resultMap id="UserResultMap" type="com.ghao.dto.User">
+        <id column="USER_ID" property="userId"/>
+        <result column="EMAIL" property="email"/>
+        <result column="PASSWORD" property="password"/>
+        <result column="PROFILE" property="profile"/>
+        <result column="NICKNAME" property="nickname"/>
+    </resultMap>
+    
+  	<insert id="add">
+  		insert into user 
+  		(USER_ID, EMAIL, PASSWORD, PROFILE, NICKNAME)
+  		values
+  		(#{userId}, #{email}, #{password}, #{profile}, #{nickname})
+  	</insert>
+  	
+  	<delete id="delete">
+  		delete from user where USER_ID = #{userId}
+  	</delete>
+  	
+  	<update id="update">
+  		update user set
+  		EMAIL = #{email},
+  		PASSWORD = #{password},
+  		PROFILE = #{profile},
+  		NICKNAME = #{nickname}
+  		where USER_ID = #{userId} 
+  	</update>
+  	
+  	<select id="getUserById" resultMap="UserResultMap">
+      	select * from user where USER_ID = #{userId}
+  	</select>
+  	
+  	<select id="list" resultMap="UserResultMap">
+      	select * from user
+  	</select>
+  	
+  	<select id="total" resultType="java.lang.Integer">
+      	select count(USER_ID) from user
+  	</select>
+  	
+</mapper>
